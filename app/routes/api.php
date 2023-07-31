@@ -19,13 +19,10 @@ use App\Http\Controllers\Api\AuthController;
 //     return $request->user();
 // });
 
-// Route::post('login','Api\AuthController@login');
-
-// Route::post('/supports', [SupportController::class, 'store'])->name('supports.store');
-
-// Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::get('/logout', [AuthController::class, 'logout']);
 
 
 
