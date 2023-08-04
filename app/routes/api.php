@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\PostsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,9 +21,17 @@ use App\Http\Controllers\Api\AuthController;
 // });
 
 
+// User Routes
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/logout', [AuthController::class, 'logout']);
+
+
+// Post Routes
+Route::post('posts/create', [PostsController::class, 'store']);
+Route::post('posts/delete', [PostsController::class, 'destroy']);
+Route::post('posts/update', [PostsController::class, 'update']);
+Route::get('posts', [PostsController::class, 'index']);
 
 
 
