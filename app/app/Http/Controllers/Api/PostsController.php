@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PostsController extends Controller
 {
@@ -14,7 +15,28 @@ class PostsController extends Controller
      */
     public function index()
     {
-        //
+        $posts = Post::orderBy('id', 'desc')->get();
+
+        foreach ($posts as $post ) {
+            # get user of post
+            $post->user;
+            // contando comentarios
+            $post['commentsCount'] = count($post->comments);
+            // contando likes
+            $post['likesCount'] = count($post->likes);
+            // verificando se o user gostou do seu proprio comentario
+            $post['selfLike'] = false;
+            foreach ($post->likes as $like) {
+                if ($like->user_id == Auth::user()->id) {
+                    $post['selfLike'] = true;
+                }
+            }
+        }
+
+        return response()->json([
+            'success'=>true,
+            'posts' => $posts
+        ]);
     }
 
     /**
@@ -70,16 +92,51 @@ class PostsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
-        //
+        $post = Post::find($request->id);
+
+        // Verificando se ee o user que esta a editar seu comentario
+        if (Auth::user()->id != $request->id) {
+            # code...
+            return response()->json([
+                'success' => false,
+                'message' => 'unauthorized access'
+            ]);
+        }
+        $post->description = $request->description;
+        $post->update();
+        return response()->json([
+            'success' => true,
+            'message' => 'post edited'
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request)
     {
-        //
+        $post = Post::find($request->id);
+
+        // Verificando se ee o user que esta a editar seu comentario
+        if (Auth::user()->id != $request->id) {
+            # code...
+            return response()->json([
+                'success' => false,
+                'message' => 'unauthorized access'
+            ]);
+        }
+       
+        // Verificando se o post contem uma fotografia por deletar
+        if($post->phote != ''){
+            Storage::delete('public/posts/'.$post->photo);
+        }
+
+        $post->delete();
+        return response()->json([
+            'success' => true,
+            'message' => 'post deleted'
+        ]);
     }
 }
